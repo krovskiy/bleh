@@ -17,14 +17,14 @@ var tasks = []Task{}
 var nextID = 1
 
 func main() {
-	http.Handle("/", http.FileServer(http.Dir("./frontend")))
+	http.Handle("/", http.FileServer(http.Dir("./static")))
 	http.HandleFunc("/tasks", handleTasks)
 	http.HandleFunc("/tasks/", handleTaskbyID)
-	http.ListenAndServe("127.0.0.1:8080", nil)
+	http.ListenAndServe(":8080", nil)
+
 }
 
 func handleTasks(w http.ResponseWriter, r *http.Request) {
-
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method == http.MethodGet {
 		json.NewEncoder(w).Encode(tasks)
