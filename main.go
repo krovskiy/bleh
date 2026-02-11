@@ -5,19 +5,21 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Task struct {
 	ID        int    `json:"id"`
 	Title     string `json:"title"`
 	Completed bool   `json:"completed"`
+	Time      int64  `json:"time"`
 }
 
 var tasks = []Task{}
 var nextID = 1
 
 func main() {
-	http.Handle("/", http.FileServer(http.Dir("./static")))
+	http.Handle("/", http.FileServer(http.Dir("./src")))
 	http.HandleFunc("/tasks", handleTasks)
 	http.HandleFunc("/tasks/", handleTaskbyID)
 	http.ListenAndServe(":8080", nil)
@@ -40,8 +42,8 @@ func handleTasks(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		newTask.ID = nextID
+		newTask.Time = time.Now().Unix()
 		nextID++
-		newTask.Completed = false
 		tasks = append(tasks, newTask)
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(newTask)
