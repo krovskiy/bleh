@@ -90,19 +90,27 @@ submitBtn.addEventListener("click", async(e) => {
 });
 
 mainCont.addEventListener("click", async(e) => {
-    if (!e.target.id.startsWith('task-')){
-        console.log("ok");
+    elements = ['taskContent-', 'time-', 'complete-'];
+    if (!elements.some(prefix => e.target.id.startsWith(prefix))){
+        console.log("Not found task!");
+        return;
     }
-    const taskID = e.target.id.replace('edit-', '');
+    const taskID = e.target.id.match(/(?:taskContent-|time-|complete-|remo-|edit-)(\d+)/)?.[1];
     const tempInp = document.getElementById(`temp-input-${taskID}`);
     if (!tempInp){
         const a = document.createElement("input");
         a.setAttribute("id",`temp-input-${taskID}`);
-    } else {
-        document.removeChild(`temp-input-${taskID}`);
+        mainCont.append(a);
     }
 
-
-
     console.log(e.target.id);
+});
+
+document.addEventListener("click", (e) => {
+    const elements = ['taskContent-', 'time-', 'complete-', 'edit-', 'remo-', 'temp-input-'];
+    const isTaskElement = elements.some(prefix => e.target.id.startsWith(prefix));
+    
+    if (!isTaskElement) {
+        document.querySelectorAll('[id^="temp-input-"]').forEach(input => input.remove());
+    }
 });
