@@ -1,1 +1,15 @@
-
+notes_app
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+go.work
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+.env
