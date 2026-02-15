@@ -23,7 +23,6 @@ func main() {
 	http.HandleFunc("/tasks", handleTasks)
 	http.HandleFunc("/tasks/", handleTaskbyID)
 	http.ListenAndServe(":8080", nil)
-
 }
 
 func handleTasks(w http.ResponseWriter, r *http.Request) {
