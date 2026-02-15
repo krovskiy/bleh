@@ -90,29 +90,91 @@ submitBtn.addEventListener("click", async(e) => {
 });
 
 mainCont.addEventListener("click", async(e) => {
-    elements = ['taskContent-', 'time-', 'complete-'];
+    elements = ['taskContent-', 'time-', 'complete-', 'edit-', 'remo-', 'temp-input'];
+    
+    const lastTask = e.target.id; //last clicked ID
+    const tempInp = document.getElementById(`temp-input`);
+
+    if (e.target.id.startsWith('remo-')) {
+        const taskID = e.target.id.match(/remo-(\d+)/)?.[1];
+        try {
+            const response = await fetch(`/tasks/${taskID}`, {
+                method: 'DELETE',
+                headers: { 
+                    'Content-Type' : 'application/json'
+                }
+            });
+            if (response.ok){
+                document.getElementById(`task-${taskID}`).remove();
+            }
+
+        } catch(err){
+            console.error(`Error: ${err}`);
+        }
+        const a = document.getElementById(`temp-input`);
+        
+        if (!a){
+            return;
+        } else {
+            a.remove();
+        }
+
+        return;
+    }
+
+    if (e.target.id.startsWith('edit-')) {
+        const taskID = e.target.id.match(/edit-(\d+)/)?.[1];
+        const a = document.getElementById(`temp-input`);
+
+        try {
+            const response = await fetch(`/tasks/${taskID}`, {
+                method: 'PUT',
+                headers: { 
+                    'Content-Type' : 'application/json'
+                },
+                body: JSON.stringify({
+                    title: a.value
+                })
+            });
+            if (response.ok){
+                const updatedTask = await response.json();
+                document.getElementById(`taskContent-${taskID}`).textContent = updatedTask.title;
+                a.remove();
+            }
+
+        } catch(err){
+            console.error(`Error: ${err}`);
+        }
+        return;
+    }
+
+    if (elements.some(prefix => e.target.id.startsWith(prefix))) {
+        if (!tempInp){
+            const a = document.createElement("input");
+            a.setAttribute("id", `temp-input`);
+            mainCont.append(a);
+            a.focus();
+
+            a.addEventListener('click', (event) => {
+                event.stopPropagation();
+            });
+        }
+    }
+
     if (!elements.some(prefix => e.target.id.startsWith(prefix))){
         console.log("Not found task!");
         return;
     }
     
-    const taskID = e.target.id.match(/(?:taskContent-|time-|complete-|remo-|edit-)(\d+)/)?.[1];
-    const tempInp = document.getElementById(`temp-input-${taskID}`);
-
-    if (!tempInp){
-        const a = document.createElement("input");
-        a.setAttribute("id",`temp-input-${taskID}`);
-        mainCont.append(a);
-    }
-
-    console.log(e.target.id);
 });
+
+
 
 document.addEventListener("click", (e) => {
     const elements = ['taskContent-', 'time-', 'complete-', 'edit-', 'remo-', 'temp-input-'];
     const isTaskElement = elements.some(prefix => e.target.id.startsWith(prefix));
     
     if (!isTaskElement) {
-        document.querySelectorAll('[id^="temp-input-"]').forEach(input => input.remove());
+        document.querySelectorAll('[id^="temp-input"]').forEach(input => input.remove());
     }
 });
