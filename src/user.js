@@ -95,8 +95,10 @@ mainCont.addEventListener("click", async(e) => {
         console.log("Not found task!");
         return;
     }
+    
     const taskID = e.target.id.match(/(?:taskContent-|time-|complete-|remo-|edit-)(\d+)/)?.[1];
     const tempInp = document.getElementById(`temp-input-${taskID}`);
+
     if (!tempInp){
         const a = document.createElement("input");
         a.setAttribute("id",`temp-input-${taskID}`);
