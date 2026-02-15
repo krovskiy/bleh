@@ -152,12 +152,9 @@ mainCont.addEventListener("click", async(e) => {
         if (!tempInp){
             const a = document.createElement("input");
             a.setAttribute("id", `temp-input`);
+            a.onclick = (event) => event.stopPropagation();
             mainCont.append(a);
             a.focus();
-
-            a.addEventListener('click', (event) => {
-                event.stopPropagation();
-            });
         }
     }
 
