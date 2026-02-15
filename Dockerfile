@@ -1,17 +1,16 @@
 FROM golang:1.23
 
-WORKDIR /project
+WORKDIR /app
 
 COPY go.mod ./
 
 RUN go mod download
 
 COPY *.go ./
+COPY src/ ./src/
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /docker-gs-ping
+RUN CGO_ENABLED=0 GOOS=linux go build -o /notes_app
 
 EXPOSE 8080
 
-CMD ["/docker-gs-ping"]
-
-ENTRYPOINT [ "go", "run", "." ]
+CMD ["/bleh"]
