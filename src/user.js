@@ -125,7 +125,11 @@ mainCont.addEventListener("click", async(e) => {
     if (e.target.id.startsWith('edit-')) {
         const taskID = e.target.id.match(/edit-(\d+)/)?.[1];
         const a = document.getElementById(`temp-input`);
-
+        if (a == null){
+            console.log("Error: no input!");  
+            return;  
+        }
+        
         try {
             const response = await fetch(`/tasks/${taskID}`, {
                 method: 'PUT',

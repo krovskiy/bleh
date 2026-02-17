@@ -55,9 +55,11 @@ func handleTaskbyID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method == http.MethodPut {
 		id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/tasks/"))
+
 		if err != nil {
 			http.Error(w, "Bad request", http.StatusBadRequest)
 		}
+
 		found := false
 		for i := 0; i < len(tasks); i++ {
 			if tasks[i].ID == id {
@@ -78,8 +80,21 @@ func handleTaskbyID(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	} else if r.Method == http.MethodDelete {
+		id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/tasks/"))
+		if err != nil {
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
 
-	} else {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		for i := 0; i < len(tasks); i++ {
+			if tasks[i].ID == id {
+				tasks = append(tasks[:i], tasks[i+1:]...)
+				w.WriteHeader(http.StatusNoContent)
+				return
+			}
+		}
+
+		http.Error(w, "task not found", http.StatusNotFound)
 	}
+
 }
