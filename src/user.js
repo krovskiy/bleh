@@ -111,14 +111,10 @@ mainCont.addEventListener("click", async(e) => {
         } catch(err){
             console.error(`Error: ${err}`);
         }
-        const a = document.getElementById(`temp-input`);
-        
-        if (!a){
-            return;
-        } else {
-            a.remove();
+        const a = document.getElementById('temp-input');
+        if (a) {
+        a.remove();
         }
-
         return;
     }
 

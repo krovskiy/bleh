@@ -15,18 +15,30 @@ type Task struct {
 	Time      int64  `json:"time"`
 }
 
+// implement db!
 var tasks = []Task{}
 var nextID = 1
 
 func main() {
-	http.Handle("/", http.FileServer(http.Dir("./src")))
+	fs := http.FileServer(http.Dir("./src"))
+	http.Handle("/", noCache(fs))
 	http.HandleFunc("/tasks", handleTasks)
 	http.HandleFunc("/tasks/", handleTaskbyID)
 	http.ListenAndServe(":8080", nil)
 }
 
+func noCache(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0")
+		w.Header().Set("Pragma", "no-cache")
+		w.Header().Set("Expires", "0")
+		h.ServeHTTP(w, r)
+	})
+}
+
 func handleTasks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no cache")
 	if r.Method == http.MethodGet {
 		json.NewEncoder(w).Encode(tasks)
 	} else if r.Method == http.MethodPost {
