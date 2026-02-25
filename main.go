@@ -108,9 +108,9 @@ func handleTaskbyID(w http.ResponseWriter, r *http.Request) {
 				json.NewEncoder(w).Encode(tasks[i])
 				return
 			}
-			if !found {
-				http.Error(w, "task not found", http.StatusNotFound)
-			}
+		}
+		if !found {
+			http.Error(w, "task not found", http.StatusNotFound)
 		}
 	} else if r.Method == http.MethodDelete {
 		id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/tasks/"))
