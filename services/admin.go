@@ -74,8 +74,9 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 			Name:     "session_id",
 			Value:    sessionID,
 			HttpOnly: true,
-			Secure:   false,
+			Secure:   true, //dont do it on prod
 			Path:     "/",
+			SameSite: http.SameSiteStrictMode,
 		})
 
 		w.WriteHeader(http.StatusOK)

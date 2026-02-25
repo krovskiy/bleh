@@ -20,6 +20,7 @@ submitBtn.addEventListener("click", async(e) => {
             b.textContent = 'succesfully sent!';
             a.append(b);
             mainDiv.append(a);
+            window.location.href = "/";
         } 
     } catch(err){
         console.error(`Error: ${err}`)

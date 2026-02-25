@@ -21,14 +21,16 @@ var tasks = []Task{}
 var nextID = 1
 
 func main() {
+	mux := http.NewServeMux()
 	loginfs := http.FileServer(http.Dir("./src/pages/login"))
 	homefs := http.FileServer(http.Dir("./src/pages/home"))
-	http.Handle("/", homefs)
-	http.Handle("/login/", http.StripPrefix("/login/", loginfs))
-	http.HandleFunc("/api/login", services.HandleLogin)
-	http.HandleFunc("/tasks", handleTasks)
-	http.HandleFunc("/tasks/", handleTaskbyID)
-	http.ListenAndServe(":8080", nil)
+	mux.Handle("/", homefs)
+	mux.Handle("/login/", http.StripPrefix("/login/", loginfs))
+	mux.HandleFunc("/api/login", services.HandleLogin)
+	mux.HandleFunc("/tasks", handleTasks)
+	mux.HandleFunc("/tasks/", handleTaskbyID)
+	protectedHandler := authMiddle(noCache(mux))
+	http.ListenAndServe(":8080", protectedHandler)
 }
 
 func noCache(h http.Handler) http.Handler {
@@ -37,6 +39,21 @@ func noCache(h http.Handler) http.Handler {
 		w.Header().Set("Pragma", "no-cache")
 		w.Header().Set("Expires", "0")
 		h.ServeHTTP(w, r)
+	})
+}
+
+func authMiddle(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/login/" || strings.HasPrefix(r.URL.Path, "/login/") || r.URL.Path == "/api/login" {
+			next.ServeHTTP(w, r)
+			return
+		}
+		session, err := r.Cookie("session_id")
+		if err != nil || session.Value == "" {
+			http.Redirect(w, r, "/login/", http.StatusFound)
+			return
+		}
+		next.ServeHTTP(w, r)
 	})
 }
 
