@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -24,6 +25,12 @@ var users = []User{
 }
 
 var Sessions = map[string]int{}
+
+func createSession(userID int) string {
+	sessionID := uuid.NewString()
+	Sessions[sessionID] = userID
+	return sessionID
+}
 
 func mustHash(password string) []byte {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -60,5 +67,21 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "wrong", http.StatusUnauthorized)
 			return
 		}
+
+		sessionID := createSession(user.ID)
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "session_id",
+			Value:    sessionID,
+			HttpOnly: true,
+			Secure:   false,
+			Path:     "/",
+		})
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]string{
+			"status": "ok",
+		})
+
 	}
 }
