@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bleh/services"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -20,8 +21,11 @@ var tasks = []Task{}
 var nextID = 1
 
 func main() {
-	fs := http.FileServer(http.Dir("./src"))
-	http.Handle("/", noCache(fs))
+	loginfs := http.FileServer(http.Dir("./src/pages/login"))
+	homefs := http.FileServer(http.Dir("./src/pages/home"))
+	http.Handle("/", homefs)
+	http.Handle("/login/", http.StripPrefix("/login/", loginfs))
+	http.HandleFunc("/api/login", services.HandleLogin)
 	http.HandleFunc("/tasks", handleTasks)
 	http.HandleFunc("/tasks/", handleTaskbyID)
 	http.ListenAndServe(":8080", nil)

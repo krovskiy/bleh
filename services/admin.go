@@ -1,4 +1,4 @@
-package main
+package services
 
 import (
 	"encoding/json"
@@ -23,6 +23,8 @@ var users = []User{
 	{ID: 1, Username: "cat", Password: mustHash("meow")},
 }
 
+var Sessions = map[string]int{}
+
 func mustHash(password string) []byte {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -40,7 +42,7 @@ func findUser(username string) *User {
 	return nil
 }
 
-func handleLogin(w http.ResponseWriter, r *http.Request) {
+func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method == http.MethodPost {
 		var newLoginRequest LoginRequest
