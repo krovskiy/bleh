@@ -16,6 +16,13 @@ type Task struct {
 	Time      int64  `json:"time"`
 }
 
+type SessionData struct {
+	UserID    int
+	ExpiresAt time.Time
+}
+
+var Sessions = map[string]SessionData{}
+
 // implement db!
 var tasks = []Task{}
 var nextID = 1
@@ -49,7 +56,12 @@ func authMiddle(next http.Handler) http.Handler {
 			return
 		}
 		session, err := r.Cookie("session_id")
-		if err != nil || session.Value == "" {
+		if err != nil {
+			http.Redirect(w, r, "/login/", http.StatusFound)
+			return
+		}
+		sessionData, exists := services.Sessions[session.Value]
+		if !exists || time.Now().After(sessionData.ExpiresAt) {
 			http.Redirect(w, r, "/login/", http.StatusFound)
 			return
 		}

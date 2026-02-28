@@ -3,6 +3,7 @@ package services
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -19,16 +20,24 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
+type SessionData struct {
+	UserID    int
+	ExpiresAt time.Time
+}
+
 // implement db!
 var users = []User{
 	{ID: 1, Username: "cat", Password: mustHash("meow")},
 }
 
-var Sessions = map[string]int{}
+var Sessions = map[string]SessionData{}
 
 func createSession(userID int) string {
 	sessionID := uuid.NewString()
-	Sessions[sessionID] = userID
+	Sessions[sessionID] = SessionData{
+		UserID:    userID,
+		ExpiresAt: time.Now().Add(24 * time.Hour),
+	}
 	return sessionID
 }
 
