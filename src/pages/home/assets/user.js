@@ -50,7 +50,10 @@ document.addEventListener("DOMContentLoaded", async(e) => {
                 createTaskTime.id = `time-${task.id}`;
                 createTaskComplete.id = `complete-${task.id}`;
 
-                createTaskContent.textContent = `${task.title}`;
+                // !! XSS VULNERABILITY !!
+                // innerHTML parses task.title as HTML, executing any embedded scripts.
+                // fix: use textContent instead of innerHTML
+                createTaskContent.innerHTML = task.title;
                 
                 createTaskTime.textContent = `${formatTime(task.time)}`;
 
@@ -137,8 +140,11 @@ mainCont.addEventListener("click", async(e) => {
                 })
             });
             if (response.ok){
+                // !! XSS VULNERABILITY !!
+                // same issue on edit — updated title rendered as raw HTML
+                // fix: use textContent instead of innerHTML
                 const updatedTask = await response.json();
-                document.getElementById(`taskContent-${taskID}`).textContent = updatedTask.title;
+                document.getElementById(`taskContent-${taskID}`).innerHTML = updatedTask.title;
                 a.remove();
             }
 
