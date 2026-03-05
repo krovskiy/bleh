@@ -18,13 +18,6 @@ type Task struct {
 	Time      int64  `json:"time"`
 }
 
-type SessionData struct {
-	UserID    int
-	ExpiresAt time.Time
-}
-
-var Sessions = map[string]SessionData{}
-
 // implement db!
 var tasks = []Task{}
 var nextID = 1

